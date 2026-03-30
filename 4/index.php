@@ -4,62 +4,7 @@ $dbname = 'u82185';
 $user = 'u82185';
 $pass = '7586396';
 
-enum fioCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case NOT_LETTER = 2;
-	case NOT_ENOUGH = 3;
-	case TOO_MUCH = 4;
-	case TOO_LONG = 5;
-	case INVALID = 6;
-}
-
-enum phoneCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case NOT_DIGIT = 2;
-	case WRONG_COUNTRY = 3;
-	case TOO_LONG = 4;
-	case TOO_SHORT = 5;
-	case INVALID = 6;
-}
-
-enum emailCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case INVALID = 2;
-}
-
-enum dateCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case DONT_EXISTS = 2;
-	case TOO_EARLY = 3;
-	case TOO_FAR = 4;
-	case INVALID = 5;
-}
-
-enum sexCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case INVALID = 2;
-}
-
-enum langsCodes {
-	case OK = 0;
-	case EMPTY = 1;
-	case INVALID = 2;
-}
-
-enum bioCodes {
-	case OK = 0;
-	case EMPTY = 1;
-}
-
-enum consentCodes {
-	case OK = 0;
-	case EMPTY = 1;
-}
+include('errors.php');
 
 function validateFIO($fio) {
 	$fioRegex = '/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$/u';
@@ -94,51 +39,50 @@ function validateEmail($email) {
 	$emailRegex = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/';
 	if (trim($email) === "") {
 		return emailCodes::EMPTY;
-	} else if (!preg_match($emailRegex, $email)) {
+	} else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 		return emailCodes::INVALID;
 	}
 	return emailCodes::OK;;
 }
 
 function validateDate($date) {
-	if (empty($date)) return dateCodes::EMPTY;
-	if (!pregmatch('//'))
+	$date = strval($date).trim();
+	if ($date = "") return dateCodes::EMPTY;
+	else if (!pregmatch('/^\d{2}\-\d{2}\-\d{2}$/', $date)) return dateCodes::INVALID;
+	else {
+		list($month, $day, $year) = explode("-", $date);
+		if (!checkdate($month, $day, $year)) return dateCodes::DONT_EXISTS;
+		else if (strtotime($date) > time() + 25 * 60 * 60) return dateCodes::TOO_FAR;
+		else if (strtotime($date) - time > 100 * 365 * 24 * 60 * 60) return dateCodes::TOO_EARLY;
+	}
+	return dateCodes::OK;
 }
 
 function validateSex($sex) {
-	if (!isset($sex) || $sex === "") {
-		return "Поле 'Пол' обязательно для заполнения";
-	} else if ($sex != "man" && $sex != "woman") {
-		return "Недопустимое значение поля 'Пол'";
-	}
-	return true;
+	if (!isset($sex) || $sex === "") return sexCodes::EMPTY;
+	} else if ($sex != "man" && $sex != "woman") return sexCodes::INVALID;
+	return sexCodes::OK;
 }
 
 function validateLanguages($languages) {
-	if (!isset($languages) || empty($languages)) {
-		return "Необходимо выбрать хотя бы один язык программирования";
-	}
+	if (!isset($languages) || empty($languages)) return langCodes::EMPTY;
 	$availableLangs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 	foreach ($languages as $lang) {
 		if (!in_array((int)$lang, $availableLangs)) {
-			return "Недействительное значение языка программирования";
+			return langCodes::INVALID;
 		}
 	}
-	return true;
+	return langCodes::OK;
 }
 
 function validateBio($bio) {
-	if (trim($bio) === "") {
-		return "Поле 'Биография' обязательно для заполнения";
-	}
-	return true;
+	if (trim($bio) === "") return bioCodes::INVALID;
+	return bioCodes::OK;
 }
 
 function validateConsent($consent) {
-	if (!isset($consent) || empty($consent)) {
-		return "Для подачи формы необходимо подтвердить ознакомление";
-	}
-	return true;
+	if (!isset($consent) || empty($consent)) return consentCodes::EMPTY;
+	return consentCodes::OK;
 }
 
 function parseFIO($fio) {
