@@ -1,10 +1,14 @@
 <?php
+
+header('Content-Type: text/html; charset=UTF-8');
 error_reporting(E_ALL);
+include('errors.php');
+
+
 $dbname = 'u82185';
 $user = 'u82185';
 $pass = '7586396';
 
-include('errors.php');
 
 function validateFIO($fio) {
 	$fioRegex = '/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$/u';
@@ -85,6 +89,7 @@ function validateConsent($consent) {
 	return consentCodes::OK;
 }
 
+
 function parseFIO($fio) {
 	$parts = explode(' ', $fio);
 	return [
@@ -94,9 +99,78 @@ function parseFIO($fio) {
 	];
 }
 
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+  $messages = array();
+
+  if (!empty($_COOKIE['saved'])) {
+    setcookie('saved', '', 100000);
+    $messages[] = 'Спасибо, результаты сохранены.';
+  }
+
+  $errors = array();
+  $errors['fio'] = !empty($_COOKIE['fio_error']);
+  $errors['phone'] = !empty($_COOKIE['phone_error']);
+  $errors['email'] = !empty($_COOKIE['email_error']);
+  $errors['birthday'] = !empty($_COOKIE['birthday_error']);
+  $errors['sex'] = !empty($_COOKIE['sex_error']);
+  $errors['languages'] = !empty($_COOKIE['langs_error']);
+  $errors['bio'] = !empty($_COOKIE['bio_error']);
+  $errors['consent'] = !empty($_COOKIE['consent_error']);
+
+  if ($errors['fio']) {
+    setcookie('fio_error', '', 100000);
+    setcookie('fio_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['fio']].'</div>';
+  }
+  if ($errors['phone']) {
+    setcookie('phone_error', '', 100000);
+    setcookie('phone_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['phone']].'</div>';
+  }
+  if ($errors['email']) {
+    setcookie('email_error', '', 100000);
+    setcookie('email_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['email']].'</div>';
+  }
+  if ($errors['birthday']) {
+    setcookie('birthday_error', '', 100000);
+    setcookie('birthday_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['birthday']].'</div>';
+  }
+  if ($errors['sex']) {
+    setcookie('sex_error', '', 100000);
+    setcookie('sex_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['sex']].'</div>';
+  }
+  if ($errors['langs']) {
+    setcookie('langs_error', '', 100000);
+    setcookie('langs_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['langs']].'</div>';
+  }
+  if ($errors['bio']) {
+    setcookie('bio_error', '', 100000);
+    setcookie('bio_value', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['bio']].'</div>';
+  }
+  if ($errors['consent']) {
+    setcookie('consent_error', '', 100000);
+    $messages[] = '<div class="error">'.fioErros[errors['consent']].'</div>';
+  }
+
+  $values = array();
+  $values['fio'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['fio_value'];
+  $values['phone'] = empty($_COOKIE['phone_value']) ? '' : $_COOKIE['phone_value'];
+  $values['email'] = empty($_COOKIE['email_value']) ? '' : $_COOKIE['email_value'];
+  $values['birthday'] = empty($_COOKIE['fio_value']) ? '' : $_COOKIE['sex_value'];
+  $values['sex'] = empty($_COOKIE['sex_value']) ? '' : $_COOKIE['sex_value'];
+  $values['languages'] = empty($_COOKIE['langs_value']) ? '' : $_COOKIE['langs_value'];
+  $values['bio'] = empty($_COOKIE['bio_value']) ? '' : $_COOKIE['bio_value'];
+
+  include('form.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	$errors = [];
-	
 	$fio = $_POST['fio'] ?? '';
 	$phone = $_POST['phone'] ?? '';
 	$email = $_POST['email'] ?? '';
@@ -106,25 +180,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$bio = $_POST['bio'] ?? '';
 	$consent = $_POST['consent'] ?? '';
 
-	$validationResult = validateFIO($fio);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	$validationResult = validatePhone($phone);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	$validationResult = validateEmail($email);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	if (empty($birthday)) $errors[] = "Поле 'Дата рождения' обязательно для заполнения";
-	$validationResult = validateSex($sex);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	$validationResult = validateLanguages($languages);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	$validationResult = validateBio($bio);
-	if ($validationResult !== true) $errors[] = $validationResult;
-	$validationResult = validateConsent($consent);
-	if ($validationResult !== true) $errors[] = $validationResult;
+	$errors = false;
 
-	if (!empty($errors)) {
+	$validationResult = validateFIO($fio);
+	if ($validationResult !== fioCodes::OK) {
+		 $errors = true;
+		 setcookie('fio_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validatePhone($phone);
+	if ($validationResult !== phoneCodes::OK) {
+		 $errors = true;
+		 setcookie('phone_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateEmail($email);
+	if ($validationResult !== emailCodes::OK) {
+		 $errors = true;
+		 setcookie('email_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateDate($birthday);
+	if ($validationResult !== dateCodes::OK) {
+		 $errors = true;
+		 setcookie('birthday_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateSex($sex);
+	if ($validationResult !== sexCodes::OK) {
+		 $errors = true;
+		 setcookie('sex_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateLanguages($languages);
+	if ($validationResult !== langCodes::OK) {
+		 $errors = true;
+		 setcookie('langs_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateBio($bio);
+	if ($validationResult !== bioCodes::OK) {
+		 $errors = true;
+		 setcookie('bio_error', $validationResult, time() + 24 * 60 * 60);
+	}
+	$validationResult = validateConsent($consent);
+	if ($validationResult !== consentCodes::OK) {
+		 $errors = true;
+		 setcookie('consent_error', $validationResult, time() + 24 * 60 * 60);
+	}
+
+	setcookie('fio_value', $fio, time() + 30 * 24 * 60 * 60);
+	setcookie('phone_value', $phone, time() + 30 * 24 * 60 * 60);
+	setcookie('email_value', $email, time() + 30 * 24 * 60 * 60);
+	setcookie('birthday_value', $birthday, time() + 30 * 24 * 60 * 60);
+	setcookie('sex_value', $sex, time() + 30 * 24 * 60 * 60);
+	setcookie('langs_value', $languages, time() + 30 * 24 * 60 * 60);
+	setcookie('bio_value', $bio, time() + 30 * 24 * 60 * 60);
+
+	if ($errors) {
 		header('Location: index.php');
 		exit();
+	} else {
+		 setcookie('fio_error', $validationResult, 1);
+		 setcookie('phone_error', $validationResult, 1);
+		 setcookie('email_error', $validationResult, 1);
+		 setcookie('birthday_error', $validationResult, 1);
+		 setcookie('sex_error', $validationResult, 1);
+		 setcookie('lang_error', $validationResult, 1);
+		 setcookie('bio_error', $validationResult, 1);
+		 setcookie('consent_error', $validationResult, 1);
 	}
 	
 	try {
@@ -163,19 +281,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 		$pdo->commit();
 		
-		echo "<h3>Данные успешно сохранены.</h3>";
-		
+		setcookie('saved', '1', time() + 24 * 60 * 60);
+
 	} catch (PDOException $e) {
 		if ($pdo->inTransaction()) {
 			$pdo->rollBack();
 		}
 		
-		echo "<h3>Ошибка базы данных:</h3>";
-		echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+		$errors = true;
+		setcookie('db_error', htmlspecialchars($e->getMessage()), time() + 24 * 60 * 60);
 		exit;
 	}
-} else {
-	header('Location: index.html');
-	exit;
 }
 ?>
