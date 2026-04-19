@@ -43,7 +43,6 @@ form {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	gap: 15px;
 }
 
 .label-form {
@@ -61,9 +60,15 @@ form {
 	font-size: 16px;
 }
 
-.error {
+.error-field {
 	border: 2px solid red;
 	color: red;
+}
+
+.error {
+	color: red;
+	margin-right: auto;
+	margin-bottom: 10px;
 }
 
 textarea {
@@ -80,7 +85,7 @@ textarea {
 	align-self: center;
 	width: 40%;
 	min-width: 120px;
-	height: 45px;
+	min-height: 45px;
 	border-radius: 25px;
 	background-color: darkslateblue;
 	color: white;

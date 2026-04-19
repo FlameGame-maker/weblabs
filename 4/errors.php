@@ -1,5 +1,5 @@
 <?php
-enum fioCodes {
+enum fioCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case NOT_LETTER = 2;
@@ -9,7 +9,7 @@ enum fioCodes {
 	case INVALID = 6;
 }
 
-enum phoneCodes {
+enum phoneCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case NOT_DIGIT = 2;
@@ -19,13 +19,13 @@ enum phoneCodes {
 	case INVALID = 6;
 }
 
-enum emailCodes {
+enum emailCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case INVALID = 2;
 }
 
-enum dateCodes {
+enum dateCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case DONT_EXISTS = 2;
@@ -34,86 +34,84 @@ enum dateCodes {
 	case INVALID = 5;
 }
 
-enum sexCodes {
+enum sexCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case INVALID = 2;
 }
 
-enum langsCodes {
+enum langsCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 	case INVALID = 2;
 }
 
-enum bioCodes {
+enum bioCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 }
 
-enum consentCodes {
+enum consentCodes: int {
 	case OK = 0;
 	case EMPTY = 1;
 }
 
 
 $fioErrors = array(
-	fioCodes::OK => 'ФИО подходит',
-	fioCodes::EMPTY => 'Поле обязательно для заполнения',
-	fioCodes::NOT_LETTER => 'Допустимы только буквы кириллицы и символ -',
-	fioCodes::NOT_ENOUGH => 'Недостаточно компонентов ФИО',
-	fioCodes::TOO_MUCH => 'Лишние компоненты в ФИО',
-	fioCodes::TOO_LONG => 'Количество данных в поле превышает допустимое',
-	fioCodes::INVALID => 'Недействительное значение ФИО'
+	fioCodes::OK->value => 'ФИО подходит',
+	fioCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	fioCodes::NOT_LETTER->value => 'Допустимы только буквы кириллицы и символ -',
+	fioCodes::NOT_ENOUGH->value => 'Недостаточно компонентов ФИО',
+	fioCodes::TOO_MUCH->value => 'Лишние компоненты в ФИО',
+	fioCodes::TOO_LONG->value => 'Количество данных в поле превышает допустимое',
+	fioCodes::INVALID->value => 'Недействительное значение ФИО'
 );
 
 $phoneErrors = array(
-	phoneCodes::OK => 'Номер телефона подходит',
-	phoneCodes::EMPTY => 'Поле обязательно для заполнения',
-	phoneCodes::NOT_DIGIT => 'Допустимы только цифры и символы (,),-',
-	phoneCodes::WRONG_COUNTRY => 'Обслуживаются только номера, начинающиеся с +7 (или 8)',
-	phoneCodes::TOO_LONG => 'Номер телефона слишком длинный',
-	phoneCodes::TOO_SHORT => 'Номер телефона слишком короткий',
-	phoneCodes::INVALID => 'Недействительное значение номера телефона'
+	phoneCodes::OK->value => 'Номер телефона подходит',
+	phoneCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	phoneCodes::NOT_DIGIT->value => 'Допустимы только цифры и символы (,),-',
+	phoneCodes::WRONG_COUNTRY->value => 'Обслуживаются только номера, начинающиеся с +7 (или 8)',
+	phoneCodes::TOO_LONG->value => 'Номер телефона слишком длинный',
+	phoneCodes::TOO_SHORT->value => 'Номер телефона слишком короткий',
+	phoneCodes::INVALID->value => 'Недействительное значение номера телефона'
 );
 
 $emailErrors = array(
-	emailCodes::OK => 'Email подходит',
-	emailCodes::EMPTY => 'Поле обязательно для заполнения',
-	emailCodes::INVALID => 'Недействительное значение email'
+	emailCodes::OK->value => 'Email подходит',
+	emailCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	emailCodes::INVALID->value => 'Недействительное значение email'
 );
 
 $dateErrors = array(
-	dateCodes::OK => 'День рождения подходит',
-	dateCodes::EMPTY => 'Поле обязательно для заполнения',
-	dateCodes::DONT_EXISTS => 'Такой день не существует',
-	dateCodes::TOO_EARLY => 'Слишком давнее значения дня рождения',
-	dateCodes::TOO_FAR => 'День рождения должен быть до текущей даты',
-	dateCodes::INVALID => 'Недействительное значение дня рождения'
+	dateCodes::OK->value => 'День рождения подходит',
+	dateCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	dateCodes::DONT_EXISTS->value => 'Такой день не существует',
+	dateCodes::TOO_EARLY->value => 'Слишком давнее значения дня рождения',
+	dateCodes::TOO_FAR->value => 'День рождения должен быть до текущей даты',
+	dateCodes::INVALID->value => 'Недействительное значение дня рождения'
 );
 
 $sexErrors = array(
-	sexCodes::OK => 'Пол подходит',
-	sexCodes::EMPTY => 'Поле обязательно для заполнения',
-	sexCodes::INVALID => 'Недействительное значение пола'
+	sexCodes::OK->value => 'Пол подходит',
+	sexCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	sexCodes::INVALID->value => 'Недействительное значение пола'
 );
 
 $langsErrors = array(
-	langsCodes::OK => 'Выбранные языки подходят',
-	langsCodes::EMPTY => 'Поле обязательно для заполнения',
-	langsCodes::INVALID => 'Недействительное значение выбранных языков'
+	langsCodes::OK->value => 'Выбранные языки подходят',
+	langsCodes::EMPTY->value => 'Поле обязательно для заполнения',
+	langsCodes::INVALID->value => 'Недействительное значение выбранных языков'
 );
 
 $bioErrors = array(
-	bioCodes::OK => 'Биография подходит',
-	bioCodes::EMPTY => 'Поле обязательно для заполнения',
-	bioCodes::INVALID => 'Недействительное значение биографии'
+	bioCodes::OK->value => 'Биография подходит',
+	bioCodes::EMPTY->value => 'Поле обязательно для заполнения',
 );
 
 $consentErrors = array(
-	consentCodes::OK => 'Согласие предоставлено',
-	consentCodes::EMPTY => 'Согласие не предоставлено',
-	consentCodes::INVALID => 'Недействительное значение согласия'
+	consentCodes::OK->value => 'Согласие предоставлено',
+	consentCodes::EMPTY->value => 'Согласие не предоставлено',
 );
 
 ?>
