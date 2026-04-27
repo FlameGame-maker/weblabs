@@ -181,43 +181,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$errors = false;
 
 	$validationResult = validateFIO($fio);
-	if ($validationResult !== fioCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== fioCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('fio_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validatePhone($phone);
-	if ($validationResult !== phoneCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== phoneCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('phone_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateEmail($email);
-	if ($validationResult !== emailCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== emailCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('email_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateDate($birthday);
-	if ($validationResult !== dateCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== dateCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('birthday_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateSex($sex);
-	if ($validationResult !== sexCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== sexCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('sex_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateLanguages($languages);
-	if ($validationResult !== langsCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== langsCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('langs_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateBio($bio);
-	if ($validationResult !== bioCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== bioCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('bio_error', $validationResult, time() + 24 * 60 * 60);
 	}
 	$validationResult = validateConsent($consent);
-	if ($validationResult !== consentCodes::OK) {
-		 $errors = true;
+	if ($validationResult !== consentCodes::OK->value) {
+		 $inputErrors = true;
 		 setcookie('consent_error', $validationResult, time() + 24 * 60 * 60);
 	}
 
