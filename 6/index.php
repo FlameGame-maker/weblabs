@@ -2,99 +2,9 @@
 
 header('Content-Type: text/html; charset=UTF-8');
 error_reporting(E_ALL);
-include('errors.php');
 
-
-$dbname = 'u82185';
-$user = 'u82185';
-$pass = '7586396';
-
-
-function validateFIO($fio) {
-	$fioRegex = '/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$/u';
-	if ($fio === "") return fioCodes::EMPTY->value;
-	else if (strlen($fio) > 150) return fioCodes::TOO_LONG->value;
-	else if (!preg_match($fioRegex, $fio)) {
-		if (preg_match('/[^[\p{L}\-]]/u', $fio)) return fioCodes::NOT_LETTER->value;
-		else if (preg_match('/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+$/u', $fio)) return fioCodes::NOT_ENOUGH->value;
-		else if (preg_match('/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s([А-ЯЁ][а-яё]+)*/u', $fio)) return fioCodes::TOO_MUCH->value;
-		else return fioCodes::INVALID->value;
-	}
-	return fioCodes::OK->value;
-}
-
-function validatePhone($phone) {
-	$phoneRegex = '/^(\+7|8)(?:\(9\d{2}\)(?:\d{3}-\d{2}-\d{2}|\d{7})|9\d{9})$/';
-	if ($phone === "") {
-		return phoneCodes::EMPTY->value;
-	} else if (!preg_match($phoneRegex, $phone)) {
-		if (preg_match('/[^[0-9\-\(\)]/', $phone)) return phoneCodes::NOT_DIGIT->value;
-		else if (!preg_match('/^(+7|8)/', $phone)) return phoneCodes::WRONG_COUNTRY->value;
-		else if (preg_match_all('/[0-9]/', $phone) > 12) return phoneCodes::TOO_LONG->value;
-		else if (preg_match_all('/[0-9]/', $phone) < 12) return phoneCodes::TOO_SHORT->value;
-		else return phoneCodes::INVALID->value;
-	}
-	return phoneCodes::OK->value;
-}
-
-function validateEmail($email) {
-	$emailRegex = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/';
-	if (trim($email) === "") {
-		return emailCodes::EMPTY->value;
-	} else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		return emailCodes::INVALID->value;
-	}
-	return emailCodes::OK->value;
-}
-
-function validateDate($date) {
-	if ($date === "") return dateCodes::EMPTY->value;
-	else if (!preg_match('/^\d{4}\-\d{2}\-\d{2}$/', $date)) return dateCodes::INVALID->value;
-	else {
-		list($year, $month, $day) = explode("-", $date);
-		if (!checkdate($month, $day, $year)) return dateCodes::DONT_EXISTS->value;
-		else if (strtotime($date) > time() + 25 * 60 * 60) return dateCodes::TOO_FAR->value;
-		else if (strtotime($date) - time() > 100 * 365 * 24 * 60 * 60) return dateCodes::TOO_EARLY->value;
-	}
-	return dateCodes::OK->value;
-}
-
-function validateSex($sex) {
-	if (!isset($sex) || $sex === "") return sexCodes::EMPTY->value;
-	else if ($sex != "man" && $sex != "woman") return sexCodes::INVALID->value;
-	return sexCodes::OK->value;
-}
-
-function validateLanguages($languages) {
-	if (!isset($languages) || empty($languages)) return langsCodes::EMPTY->value;
-	$availableLangs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-	foreach ($languages as $lang) {
-		if (!in_array((int)$lang, $availableLangs)) {
-			return langsCodes::INVALID->value;
-		}
-	}
-	return langsCodes::OK->value;
-}
-
-function validateBio($bio) {
-	if (trim($bio) === "") return bioCodes::EMPTY->value;
-	return bioCodes::OK->value;
-}
-
-function validateConsent($consent) {
-	if (!isset($consent) || empty($consent)) return consentCodes::EMPTY->value;
-	return consentCodes::OK->value;
-}
-
-
-function parseFIO($fio) {
-	$parts = explode(' ', $fio);
-	return [
-		'surname' => $parts[0] ?? '',
-		'name' => $parts[1] ?? '',
-		'patronymic' => $parts[2] ?? ''
-	];
-}
+include('includes/utils.php');
+include('includes/validation.php');
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -114,53 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 	}
 
 	$errors = array();
-	$errors['fio'] = empty($_COOKIE['fio_error']) ? "" : strip_tags($_COOKIE['fio_error']);
-	$errors['phone'] = empty($_COOKIE['phone_error']) ? "" : strip_tags($_COOKIE['phone_error']);
-	$errors['email'] = empty($_COOKIE['email_error']) ? "" : strip_tags($_COOKIE['email_error']);
-	$errors['birthday'] = empty($_COOKIE['birthday_error']) ? "" : strip_tags($_COOKIE['birthday_error']);
-	$errors['sex'] = empty($_COOKIE['sex_error']) ? "" : strip_tags($_COOKIE['sex_error']);
-	$errors['langs'] = empty($_COOKIE['langs_error']) ? "" : strip_tags($_COOKIE['langs_error']);
-	$errors['bio'] = empty($_COOKIE['bio_error']) ? "" : strip_tags($_COOKIE['bio_error']);
-	$errors['consent'] = empty($_COOKIE['consent_error']) ? "" : strip_tags($_COOKIE['consent_error']);
-
-	if ($errors['fio']) {
-		setcookie('fio_error', '', 100000);
-		setcookie('fio_value', '', 100000);
-		$messages['fio'] = '<div class="error">'.$fioErrors[$errors['fio']].'</div>';
-	}
-	if ($errors['phone']) {
-		setcookie('phone_error', '', 100000);
-		setcookie('phone_value', '', 100000);
-		$messages['phone'] = '<div class="error">'.$phoneErrors[$errors['phone']].'</div>';
-	}
-	if ($errors['email']) {
-		setcookie('email_error', '', 100000);
-		setcookie('email_value', '', 100000);
-		$messages['email'] = '<div class="error">'.$emailErrors[$errors['email']].'</div>';
-	}
-	if ($errors['birthday']) {
-		setcookie('birthday_error', '', 100000);
-		setcookie('birthday_value', '', 100000);
-		$messages['birthday'] = '<div class="error">'.$dateErrors[$errors['birthday']].'</div>';
-	}
-	if ($errors['sex']) {
-		setcookie('sex_error', '', 100000);
-		setcookie('sex_value', '', 100000);
-		$messages['sex'] = '<div class="error">'.$sexErrors[$errors['sex']].'</div>';
-	}
-	if ($errors['langs']) {
-		setcookie('langs_error', '', 100000);
-		setcookie('langs_value', '', 100000);
-		$messages['langs'] = '<div class="error">'.$langsErrors[$errors['langs']].'</div>';
-	}
-	if ($errors['bio']) {
-		setcookie('bio_error', '', 100000);
-		setcookie('bio_value', '', 100000);
-		$messages['bio'] = '<div class="error">'.$bioErrors[$errors['bio']].'</div>';
-	}
-	if ($errors['consent']) {
-		setcookie('consent_error', '', 100000);
-		$messages['consent'] = '<div class="error">'.$consentErrors[$errors['consent']].'</div>';
+	$fields = ['fio', 'phone', 'email', 'birthday', 'sex', 'langs', 'bio', 'consent'];
+	foreach ($fields as $field) {
+		$errors[$field] = empty($_COOKIE[$field.'_error']) ? '' : strip_tags($_COOKIE[$field.'_error']);
+		if ($errors[$field]) {
+			setcookie($field.'_error', '', 100000);
+			setcookie($field.'_value', '', 100000);
+			$messages[$field] = '<div class="error">'.$errorMessages[$field][$errors[$field]].'</div>';
+		}
 	}
 
 	$values = array();
@@ -173,16 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 	$values['bio'] = !empty($_COOKIE['bio_value']) ? $_COOKIE['bio_value'] : '';
 
 	if (empty($errors)) {
-		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login'])) {
+		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login']) && !empty($_SESSION['uid'])) {
+			$login = $_SESSION['login'];
+			$uid = $_SESSION['uid'];
+
 			try {
-				$pdo = new PDO("mysql:host=localhost;dbname=$dbname;charset=utf8", $user, $pass);
+				$pdo = new PDO('mysql:host=localhost;dbname='.conf('db_name').';charset=utf8', conf('db_user'), conf('db_pass'));
 				$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				
-				$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND password_hash = :password_hash";
+				$sql = "SELECT application_id FROM app_users WHERE login = :login AND id = :id";
 				$stmt = $pdo->prepare($sql);
 				$stmt->execute([
 					':login' => $login,
-					':password_hash' => password_hash($password, PASSWORD_DEFAULT)
+					':id' => $uid
 				]);
 				$user = $stmt->fetchObject();
 
@@ -198,8 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 				$values['email'] = $application->email;
 				$values['birthday'] = $application->birthday;
 				$values['sex'] = $application->sex;
-				$values['langs'] = array();
 				$values['bio'] = $application->bio;
+
+				$sql = "SELECT lang_id FROM application_langs WHERE application_id = :app_id";
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute([
+					':app_id' => $user->application_id
+				]);
+				$values['langs'] = $stmt->fetchAll();
 
 				printf('Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
 			} catch (PDOException $e) {
@@ -209,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		}
 	}
 
-	include('form.php');
+	include('pages/form.page.php');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -288,15 +168,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 
 	try {
-		$pdo = new PDO("mysql:host=localhost;dbname=$dbname;charset=utf8", $user, $pass);
+		$pdo = new PDO('mysql:host=localhost;dbname='.conf('db_name').';charset=utf8', conf('db_user'), conf('db_pass'));
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login'])) {
-			$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND password_hash = :password_hash";
+			$login = $_SESSION['login'];
+			$uid = $_SESSION['uid'];
+
+			$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND id = :id";
 			$stmt = $pdo->prepare($sql);
 			$stmt->execute([
 				':login' => $login,
-				':password_hash' => password_hash($password, PASSWORD_DEFAULT)
+				':id' => $uid
 			]);
 			$user = $stmt->fetchObject();
 
@@ -305,7 +188,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$sql = "UPDATE application SET surname = :surname, name = :name, patronymic = :patronymic, phone_number = :phone,
 				email = :email, birthday = :birthday, sex = :sex, biography = :bio WHERE id = :application_id";
 			
-			$fioParts = parseFIO($fio);
+			$parts = explode(' ', $fio);
+			$fioParts = [
+				'surname' => $parts[0] ?? '',
+				'name' => $parts[1] ?? '',
+				'patronymic' => $parts[2] ?? ''
+			];
+
 			$stmt = $pdo->prepare($sql);
 			$stmt->execute([
 				':application_id' => $user->application_id,
@@ -339,7 +228,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$sql = "INSERT INTO application (surname, name, patronymic, phone_number, email, birthday, sex, biography) 
 				VALUES (:surname, :name, :patronymic, :phone, :email, :birthday, :sex, :bio)";
 		
-			$fioParts = parseFIO($fio);
+			$parts = explode(' ', $fio);
+			$fioParts = [
+				'surname' => $parts[0] ?? '',
+				'name' => $parts[1] ?? '',
+				'patronymic' => $parts[2] ?? ''
+			];
 			$stmt = $pdo->prepare($sql);
 			$stmt->execute([
 				':surname' => $fioParts['surname'],

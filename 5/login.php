@@ -8,7 +8,7 @@ $pass = '7586396';
 
 $session_started = false;
 
-if (session_start() && ) {
+if (session_start()) {
 	if ($_COOKIE[session_name()]) {
 		$session_started = true;
 		if (!empty($_SESSION['login'])) {

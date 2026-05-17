@@ -2,89 +2,12 @@
 
 header('Content-Type: text/html; charset=UTF-8');
 error_reporting(E_ALL);
-include('errors.php');
+include('validation.php');
 
 
 $dbname = 'u82185';
 $user = 'u82185';
 $pass = '7586396';
-
-
-function validateFIO($fio) {
-	$fioRegex = '/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$/u';
-	if ($fio === "") return fioCodes::EMPTY->value;
-	else if (strlen($fio) > 150) return fioCodes::TOO_LONG->value;
-	else if (!preg_match($fioRegex, $fio)) {
-		if (preg_match('/[^[\p{L}\-]]/u', $fio)) return fioCodes::NOT_LETTER->value;
-		else if (preg_match('/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s[А-ЯЁ][а-яё]+$/u', $fio)) return fioCodes::NOT_ENOUGH->value;
-		else if (preg_match('/^[А-ЯЁ][а-яё]+(?:-[А-ЯЁ][а-яё]+)*\s([А-ЯЁ][а-яё]+)*/u', $fio)) return fioCodes::TOO_MUCH->value;
-		else return fioCodes::INVALID->value;
-	}
-	return fioCodes::OK->value;
-}
-
-function validatePhone($phone) {
-	$phoneRegex = '/^(\+7|8)(?:\(9\d{2}\)(?:\d{3}-\d{2}-\d{2}|\d{7})|9\d{9})$/';
-	if ($phone === "") {
-		return phoneCodes::EMPTY->value;
-	} else if (!preg_match($phoneRegex, $phone)) {
-		if (preg_match('/[^[0-9\-\(\)]/', $phone)) return phoneCodes::NOT_DIGIT->value;
-		else if (!preg_match('/^(+7|8)/', $phone)) return phoneCodes::WRONG_COUNTRY->value;
-		else if (preg_match_all('/[0-9]/', $phone) > 12) return phoneCodes::TOO_LONG->value;
-		else if (preg_match_all('/[0-9]/', $phone) < 12) return phoneCodes::TOO_SHORT->value;
-		else return phoneCodes::INVALID->value;
-	}
-	return phoneCodes::OK->value;
-}
-
-function validateEmail($email) {
-	$emailRegex = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/';
-	if (trim($email) === "") {
-		return emailCodes::EMPTY->value;
-	} else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		return emailCodes::INVALID->value;
-	}
-	return emailCodes::OK->value;
-}
-
-function validateDate($date) {
-	if ($date === "") return dateCodes::EMPTY->value;
-	else if (!preg_match('/^\d{4}\-\d{2}\-\d{2}$/', $date)) return dateCodes::INVALID->value;
-	else {
-		list($year, $month, $day) = explode("-", $date);
-		if (!checkdate($month, $day, $year)) return dateCodes::DONT_EXISTS->value;
-		else if (strtotime($date) > time() + 25 * 60 * 60) return dateCodes::TOO_FAR->value;
-		else if (strtotime($date) - time() > 100 * 365 * 24 * 60 * 60) return dateCodes::TOO_EARLY->value;
-	}
-	return dateCodes::OK->value;
-}
-
-function validateSex($sex) {
-	if (!isset($sex) || $sex === "") return sexCodes::EMPTY->value;
-	else if ($sex != "man" && $sex != "woman") return sexCodes::INVALID->value;
-	return sexCodes::OK->value;
-}
-
-function validateLanguages($languages) {
-	if (!isset($languages) || empty($languages)) return langsCodes::EMPTY->value;
-	$availableLangs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-	foreach ($languages as $lang) {
-		if (!in_array((int)$lang, $availableLangs)) {
-			return langsCodes::INVALID->value;
-		}
-	}
-	return langsCodes::OK->value;
-}
-
-function validateBio($bio) {
-	if (trim($bio) === "") return bioCodes::EMPTY->value;
-	return bioCodes::OK->value;
-}
-
-function validateConsent($consent) {
-	if (!isset($consent) || empty($consent)) return consentCodes::EMPTY->value;
-	return consentCodes::OK->value;
-}
 
 
 function parseFIO($fio) {
@@ -173,16 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 	$values['bio'] = !empty($_COOKIE['bio_value']) ? $_COOKIE['bio_value'] : '';
 
 	if (empty($errors)) {
-		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login'])) {
+		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login']) && !empty($_SESSION['uid'])) {
+			$login = $_SESSION['login'];
+			$uid = $_SESSION['uid'];
+
 			try {
 				$pdo = new PDO("mysql:host=localhost;dbname=$dbname;charset=utf8", $user, $pass);
 				$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				
-				$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND password_hash = :password_hash";
+				$sql = "SELECT application_id FROM app_users WHERE login = :login AND id = :id";
 				$stmt = $pdo->prepare($sql);
 				$stmt->execute([
 					':login' => $login,
-					':password_hash' => password_hash($password, PASSWORD_DEFAULT)
+					':id' => $uid
 				]);
 				$user = $stmt->fetchObject();
 
@@ -198,8 +124,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 				$values['email'] = $application->email;
 				$values['birthday'] = $application->birthday;
 				$values['sex'] = $application->sex;
-				$values['langs'] = array();
 				$values['bio'] = $application->bio;
+
+				$sql = "SELECT lang_id FROM application_langs WHERE application_id = :app_id";
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute([
+					':application_id' => $user->application_id
+				]);
+				$values['langs'] = $stmt->fetchAll();
 
 				printf('Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
 			} catch (PDOException $e) {
@@ -291,12 +223,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$pdo = new PDO("mysql:host=localhost;dbname=$dbname;charset=utf8", $user, $pass);
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login'])) {
-			$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND password_hash = :password_hash";
+		if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login']) && !empty($_SESSION['uid'])) {
+			$login = $_SESSION['login'];
+			$uid = $_SESSION['uid'];
+
+			$sql = "SELECT login, password_hash, application_id FROM app_users WHERE login = :login AND id = :id";
 			$stmt = $pdo->prepare($sql);
 			$stmt->execute([
 				':login' => $login,
-				':password_hash' => password_hash($password, PASSWORD_DEFAULT)
+				':id' => $uid
 			]);
 			$user = $stmt->fetchObject();
 

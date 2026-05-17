@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8" />
-	<title>Лаб. Работа 5</title>
-	<link rel="stylesheet" href="style.css">
+	<title>Лаб. Работа 6</title>
+	<link rel="stylesheet" href="pages/style.css">
 </head>
 <body>
 	<?php
