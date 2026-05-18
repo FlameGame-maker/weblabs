@@ -11,6 +11,21 @@ if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW']) || $_SERV
 	exit();
 }
 
+session_start();
+
+if (!isset($_SESSION['user']) || $_SESSION['user'] !== $_SERVER['PHP_AUTH_USER']) {
+    $_SESSION['user'] = $_SERVER['PHP_AUTH_USER'];
+    $_SESSION['timeout'] = time() + conf('timeout');
+}
+
+if (!isset($_SESSION['timeout']) || $_SESSION['timeout'] < time()) {
+	session_unset();
+	session_destroy();
+	header('WWW-Authenticate: Basic realm="Session Expired"');
+	header('HTTP/1.0 401 Unauthorized');
+	exit;
+}
+
 include('includes/validation.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -18,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 	$errors = array();
 	$fields = ['fio', 'phone', 'email', 'birthday', 'sex', 'langs', 'bio', 'consent'];
 	foreach ($fields as $field) {
-		$errors[$field] = empty($_COOKIE[$field.'_error']) ? '' : strip_tags($_COOKIE[$field.'_error']);
+		$errors[$field] = empty($_COOKIE[$field.'_error']) ? '' : (is_numeric($_COOKIE[$field.'_error']) ? '' : $_COOKIE[$field.'_error']);
 		if ($errors[$field]) {
 			setcookie($field.'_error', '', 100000);
 			setcookie($field.'_value', '', 100000);
@@ -77,6 +92,22 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$bio = $_POST['bio'] ?? '';
 					$consent = $_POST['consent'] ?? '';
 
+					$inputErrors = false;
+					$validationResult = validateFIO($fio);
+					if ($validationResult !== fioCodes::OK->value) $inputErrors = true;
+					$validationResult = validatePhone($phone);
+					if ($validationResult !== phoneCodes::OK->value) $inputErrors = true;
+					$validationResult = validateEmail($email);
+					if ($validationResult !== emailCodes::OK->value) $inputErrors = true;
+					$validationResult = validateDate($birthday);
+					if ($validationResult !== dateCodes::OK->value) $inputErrors = true;
+					$validationResult = validateSex($sex);
+					if ($validationResult !== sexCodes::OK->value) $inputErrors = true;
+					$validationResult = validateLanguages($languages);
+					if ($validationResult !== langsCodes::OK->value) $inputErrors = true;
+					$validationResult = validateBio($bio);
+					if ($validationResult !== bioCodes::OK->value) $inputErrors = true;
+
 					$parts = explode(' ', $fio);
 					$fioParts = [
 						'surname' => $parts[0] ?? '',
@@ -87,7 +118,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$sql = "UPDATE application SET surname = :surname, name = :name, patronymic = :patronymic, phone_number = :phone,
 					email = :email, birthday = :birthday, sex = :sex, biography = :bio WHERE id = :application_id";
 					$stmt = $pdo->prepare($sql);
-					$result = $stmt->execute([
+					$stmt->execute([
 						':application_id' => $_POST['id'],
 						':surname' => $fioParts['surname'],
 						':name' => $fioParts['name'],
@@ -98,7 +129,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 						':sex' => $sex,
 						':bio' => htmlspecialchars($bio)
 					]);
-					setcookie('test', $result, time() + 1000);
 				}
 
                 header('Location: ' . $_SERVER['PHP_SELF']);

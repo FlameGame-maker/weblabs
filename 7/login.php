@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=UTF-8');
+error_reporting(0);
 
 include('includes/utils.php');
 
@@ -8,6 +9,7 @@ $session_started = false;
 if (session_start()) {
 	if ($_COOKIE[session_name()]) {
 		$session_started = true;
+		$_SESSION['timeout'] = time() + conf('timeout');
 		if (!empty($_SESSION['login'])) {
 			header('Location: index.php');
 			exit();
@@ -16,7 +18,7 @@ if (session_start()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-	$login_error = !empty($_COOKIE['login_error']) ? $_COOKIE['login_error'] : '';
+	$login_error = !empty($_COOKIE['login_error']) ? htmlspecialchars($_COOKIE['login_error']) : '';
 	setcookie('login_error', 0, 1);
 	
 	include('pages/login.page.php');
