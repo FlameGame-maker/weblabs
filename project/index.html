@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Проект - Поддержка сайтов на Drupal</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+	<div class="mobile-nav">
+		<div class="mobile-nav-bar">
+			<img class="logo" src="res/Drupal.png" alt="Логотип">
+			<div class="mobile-nav-toggle" id="navToggle">
+				<img src="res/NavToggle.png" alt="Navigation bar toggle" />
+			</div>
+			<div class="mobile-nav-menu" id="navMenu">
+				<ul class="mobile-nav-items">
+					<li class="mobile-nav-item active">
+						ПОДДЕРЖКА
+					</li>
+					<li class="mobile-nav-item">
+						АДМИНИСТРИРОВАНИЕ
+					</li>
+					<li class="mobile-nav-item">
+						РЕКЛАМА
+					</li>
+					<li class="mobile-nav-item">
+						О НАС
+					</li>
+					<li class="mobile-nav-item">
+						ПРОЕКТЫ
+					</li>
+					<li class="mobile-nav-item">
+						КОНТАКТЫ
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<header>
+		<video class="header-video" autoplay muted loop playsinline>
+			<source src="res/video.mp4" type="video/mp4">
+		</video>
+
+		<div class="header-container">
+			<nav class="main-nav">
+				<img class="logo" src="res/Drupal.png" alt="Логотип">
+
+				<ul class="nav-menu">
+					<li class="nav-item">ПОДДЕРЖКА</li>
+					<li class="nav-item">
+						АДМИНИСТРИРОВАНИЕ ▾
+						<div class="dropdown-menu">
+							<a href="#">МИГРАЦИЯ</a>
+							<a href="#">БЭКАПЫ</a>
+							<a href="#">АУДИТ БЕЗОПАСНОСТИ</a>
+							<a href="#">ОПТИМИЗАЦИЯ СКОРОСТИ</a>
+							<a href="#">ПЕРЕЕЗД НА HTTPS</a>
+						</div>
+					</li>
+					<li class="nav-item">ПРОДВИЖЕНИЕ</li>
+					<li class="nav-item">РЕКЛАМА</li>
+					<li class="nav-item">О НАС</li>
+					<li class="nav-item">ПРОЕКТЫ</li>
+					<li class="nav-item">КОНТАКТЫ</li>
+				</ul>
+			</nav>
+
+			<div class="hero-content">
+				<section class="hero-offer">
+					<h1 class="hero-title">Поддержка сайтов на Drupal</h1>
+					<p class="hero-subtitle">Сопровождение и поддержка сайтов на CMS Drupal любых версий и запущенности</p>
+					<button class="btn-tariffs" id="tarrifsBtn">Тарифы</button>
+				</section>
+
+				<section>
+					<ul class="stats-row" style="flex-wrap: nowrap;">
+						<li class="stats-elem">
+							<h3>#1</h3>
+							<p>Drupal-разработчик в России по версии Рейтинга Рунета</p>
+						</li>
+						<li class="stats-elem">
+							<h3>3+</h3>
+							<p>средний опыт специалистов более 3 лет</p>
+						</li>
+						<li class="stats-elem">
+							<h3>14</h3>
+							<p>лет опыта в сфере Drupal</p>
+						</li>
+						<li class="stats-elem">
+							<h3>50+</h3>
+							<p>модулей и тем в формате DrupalGive</p>
+						</li>
+						<li class="stats-elem">
+							<h3>90 000+</h3>
+							<p>часов поддержки сайтов на Drupal</p>
+						</li>
+						<li class="stats-elem">
+							<h3>300+</h3>
+							<p>Проектов на поддержке</p>
+						</li>
+					</ul>
+				</section>
+			</div>
+		</div>
+	</header>
+
+	<main>
+		<h1>Тарифы</h1>
+		<div class="gallery-wrapper">
+			<button class="btn" id="prevBtn"><</button>
+			<div style="flex-grow: 1; overflow: hidden;">
+				<div class="gallery-track" id="galleryTrack">
+					<div class="slide">
+						<div class="slide-content">
+							<h3>Стартовый</h3>
+							<ul>
+								<li>Консультации и работы по CEO</li>
+								<li>Услуги дизайнера</li>
+								<li>Неиспользованные оплаченные часы не переносятся</li>
+								<li>Предоплата от 6 000 руюлей в месяц</li>
+							</ul>
+							<button class="contact-us">СВЯЖИТЕСЬ С НАМИ</button>
+						</div>
+					</div>
+					<div class="slide">
+						<div class="slide-content">
+							<h3>Бизнес</h3>
+							<ul>
+								<li>Консультации и работы по CEO</li>
+								<li>Услуги дизайнера</li>
+								<li>Высокое время реакции - до 2 рабочих дней</li>
+								<li>Неиспользованные оплаченные часы не переносятся</li>
+								<li>Предоплата от 30 000 руюлей в месяц</li>
+							</ul>
+							<button class="contact-us">СВЯЖИТЕСЬ С НАМИ</button>
+						</div>
+					</div>
+					<div class="slide">
+						<div class="slide-content">
+							<h3>VIP</h3>
+							<ul>
+								<li>Консультации и работы по CEO</li>
+								<li>Услуги дизайнера</li>
+								<li>Максимальное время реакции - в день обращения</li>
+								<li>Неиспользованные оплаченные часы не переносятся</li>
+								<li>Предоплата от 270 000 руюлей в месяц</li>
+							</ul>
+							<button class="contact-us">СВЯЖИТЕСЬ С НАМИ</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<button class="btn" id="nextBtn">></button>
+		</div>
+	</main>
+
+	<footer>
+		<section class="form-wrapper">
+			<div class="contact-us">
+				<h1>Оставьте заявку на поддержку сайта</h1>
+				<p>
+					Срочно нужна поддержка сайта? Ваша команда не успевает справиться самостоятельно или предыдущий подрядчик не справился с работой?
+					Тогда вам точно к нам! Просто оставьте заявку и наш менеджер с вами свяжется!
+				</p>
+				<h3>8 800 222-26-73</h3>
+				<u>info@drupal-coder.ru</u>
+			</div>
+		</section>
+
+		<section>
+			<div class="form-wrapper">
+				<form id="feedbackForm">
+					<div class="form-group">
+						<input type="text" id="fullName" name="fullName" class="form-control" required placeholder="Ваше имя">
+					</div>
+					<div class="form-group">
+						<input type="tel" id="phone" name="phone" class="form-control" placeholder="Телефон">
+					</div>
+					<div class="form-group">
+						<input type="email" id="email" name="email" class="form-control" required placeholder="E-mail">
+					</div>
+					<div class="form-group">
+						<textarea id="message" name="message" class="form-control" required placeholder="Ваш комментарий"></textarea>
+					</div>
+
+					<div class="checkbox-group">
+						<input type="checkbox" id="privacyPolicy" name="privacyPolicy" required>
+						<label for="privacyPolicy">
+							<h7 style="color: darkgrey">
+								Отправляя заявку, я даю согласие на
+								<h7 style="color: mediumvioletred">обработку своих персональных данных.*</h7>
+							</h7>
+						</label>
+					</div>
+
+					<button type="submit" class="submit-button" id="submitButton">
+						<h3>Отправить сообщение</h3>
+					</button>
+
+					<div class="message success" id="successMessage">
+						Ваше сообщение успешно отправлено!
+					</div>
+
+					<div class="message error" id="errorMessage">
+						Ошибка отправки. Попробуйте еще раз.
+					</div>
+				</form>
+			</div>
+		</section>
+	</footer>
+
+	<script src="script.js" defer></script>
+</body>
+</html>
