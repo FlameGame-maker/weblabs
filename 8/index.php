@@ -2,8 +2,8 @@
 include_once('./settings.php');
 
 // Выключаем отображение ошибок после отладки.
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+ini_set('display_errors', DISPLAY_ERRORS);
+error_reporting(0);
 //ini_set("mysql.trace_mode","On");
 
 // Папки со скриптами и модулями.
