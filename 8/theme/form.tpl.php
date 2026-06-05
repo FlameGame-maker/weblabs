@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>Лаб. Работа 6</title>
-
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<style>
 		body { display: flex; flex-direction: column; align-items: center; font-family: 'Montserrat', sans-serif; margin: 0; width: 100vw; }
 		.mobile-nav { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; background-color: black; }
@@ -85,8 +85,6 @@
 			.hero-title { font-size: 48px; }
 		}
 	</style>
-
-	
 </head>
 <body>
 	<div class="mobile-nav">
@@ -337,17 +335,65 @@
 	</footer>
 
 	<script>
-		document.getElementById('logout').addEventListener('click', function() {
-			fetch('form', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: 'action=clicked'
-			})
-			.then(response => response.text())
-			.then(data => alert(data));
-		});
+		let currentSlide = 0;
+		let slidesPerView = 1;
+		const $slides = $('.slide');
+		const totalSlides = $slides.length;
+		const $galleryTrack = $('#galleryTrack');
 
-		<?php if ($c['congrats'] !== "") print 'alert("Данные были успешно сохранены");'; ?>
+		function updateGallery() {
+			const slideWidth = 100 / slidesPerView;
+			$galleryTrack.css('transform', `translateX(${-currentSlide * slideWidth}%)`);
+
+			$('#prevBtn').prop('disabled', currentSlide <= 0);
+			$('#nextBtn').prop('disabled', currentSlide >= totalSlides - slidesPerView);
+		}
+
+		$(document).ready(function () {
+			updateGallery();
+
+			$('#nextBtn').on('click', function () {
+				if (currentSlide < totalSlides - slidesPerView) {
+					currentSlide++;
+					updateGallery();
+				}
+			});
+
+			$('#prevBtn').on('click', function () {
+				if (currentSlide > 0) {
+					currentSlide--;
+					updateGallery();
+				}
+			});
+
+			$('.contact-us').on('click', function () {
+				feedbackForm.scrollIntoView();
+			});
+
+			$('#tarrifsBtn').on('click', function () {
+				$('.gallery-wrapper')[0].scrollIntoView();
+			});
+
+			const navToggle = document.getElementById('navToggle');
+			const navMenu = document.getElementById('navMenu');
+
+			navToggle.addEventListener('click', function () {
+				navMenu.classList.toggle('active');
+				navToggle.classList.toggle('active');
+			});
+
+			document.getElementById('logout').addEventListener('click', function() {
+				fetch('form', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: 'action=clicked'
+				})
+				.then(response => response.text())
+				.then(data => alert(data));
+			});
+
+			<?php if ($c['congrats'] !== "") print 'alert("Данные были успешно сохранены");'; ?>
+		});
 	</script>
 </body>
 </html>
